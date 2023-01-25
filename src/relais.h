@@ -82,7 +82,7 @@ void relais_set(int relais) // fonction de gestion des relais
     if (relais_map[relais] != relais_old[relais]) // si changement de valeur
     {
         // si changement en sens montant
-        if (relais_map[relais] < relais_old[relais])
+        if (relais_map[relais] > relais_old[relais])
         {
 #ifdef DEBUG_RELAIS // si DEBUG activé
             Log.notice("relais UP" CR);
@@ -102,7 +102,7 @@ void relais_set(int relais) // fonction de gestion des relais
             }
         }
         // si changement en sens descendant
-        if (relais_map[relais] > relais_old[relais])
+        if (relais_map[relais] < relais_old[relais])
         {
 #ifdef DEBUG_RELAIS // si DEBUG activé
             Log.notice("relais DOWN" CR);
