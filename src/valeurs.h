@@ -8,24 +8,24 @@ void smoothvolume_set(int i);  // calcul des valeurs lissées de volume et mise 
 
 void valeurs_set(int i)
 {
-    if (position_change[i] == true && position_lue[i] != position_save[i]) // si changement d'état du potentiomètre de gain gauche
+    if (position_change[i] == true && position_lue[i] != position_save[i]) // si changement d'état du potentiomètre
     {
         switch (i)
         {
         case 0:
-            smoothgain[0] = byte(position_lue[0] / 4);
-            smoothgain_set(0); // mise à jour de valeur du relais gain gauche
+            smoothgain[0] = byte(position_lue[0] / 4); // adaptation de valeur
+            smoothgain_set(0);                         // mise à jour de valeur du relais gain gauche
             break;
         case 1:
-            smoothvol[0] = byte(position_lue[1] / 4) - 1; // 156
+            smoothvol[0] = byte(position_lue[1] / 4) - 1; // adaptation de valeur
             smoothvolume_set(0);
             break;
         case 2:
-            smoothgain[1] = byte(position_lue[2] / 4); // 156
+            smoothgain[1] = byte(position_lue[2] / 4); // adaptation de valeur
             smoothgain_set(1);                         // mise à jour de valeur du relais gain droit
             break;
         case 3:
-            smoothvol[1] = byte(position_lue[3] / 4) - 1; // 156
+            smoothvol[1] = byte(position_lue[3] / 4) - 1; // adaptation de valeur
             smoothvolume_set(1);                          // mise à jour de valeur du relais volume droit
             break;
         default:
@@ -36,7 +36,7 @@ void valeurs_set(int i)
 
 void valeurs_const_set(int i)
 {
-    if (position_change[i] == true && position_set[i] != position_save[i]) // si changement d'état du potentiomètre de gain gauche
+    if (position_change[i] == true && position_set[i] != position_save[i]) // si changement d'état du potentiomètre
     {
         switch (i)
         {
@@ -61,6 +61,7 @@ void valeurs_const_set(int i)
         }
     }
 }
+ 
 void smoothgain_set(int i)
 {
     // lisages manuel des valeurs de gain

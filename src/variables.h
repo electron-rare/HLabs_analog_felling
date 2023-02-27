@@ -34,11 +34,11 @@ bool motor_change[4] = {false, false, false, false};                 // tableau 
 byte analog_pot[4] = {gain_0_pot, vol_0_pot, gain_1_pot, vol_1_pot}; // tableau de PIN des potentiomètre
 #define max_pot 1005                                                 // valeur max potentiomètre pour calibrage ADC
 #define min_pot 0                                                    // valeur min potentiomètre pour calibrage ADC
-
 // variable pour gestion du temps
 unsigned long last_change_time = millis(); // remise à zéro du compteur de temps
 unsigned long current_time = millis();     // variable de temps courant
-#define bounce_time_pot 150                // interval de temps entre 2 lecture de l'état du potentiomètre
+
+#define bounce_time_pot 150 // interval de temps entre 2 lecture de l'état du potentiomètre
 
 // *******************************************************************************************************
 // ****************************************** relais *****************************************************
@@ -75,3 +75,29 @@ bool const_state = false;                                // variable d'état d'a
 bool error_motor = false;                                // variable d'erreur de communication avec le moteur
 int smoothgain[2] = {0, 0};                              // tableau de valeur de lissage du gain
 int smoothvol[2] = {0, 0};                               // tableau de valeur de lissage du volume
+
+// *******************************************************************************************************
+// ****************************************** fonction error LED  ****************************************
+// *******************************************************************************************************
+bool error_state = false;
+bool error_led_state = LOW;
+
+unsigned long old_led_time = millis(); // variable de temps courant
+
+void error_led()
+{
+    unsigned long current_led_time = millis(); // variable de temps courant
+    if (current_led_time - old_led_time >= 500)
+    {
+        old_led_time = millis();
+        if (error_led_state == LOW)
+        {
+            error_led_state = HIGH;
+        }
+        else
+        {
+            error_led_state = LOW;
+        }
+        digitalWrite(stereo_link_led, error_led_state);
+    }
+}

@@ -24,24 +24,28 @@ void moteur_stop(int i)
         lecture_pot(i);                    // lecture analogique du potentiomètre
         motor_change[i] = false;           // remise à zéro du flag de changement de position du potentiomètre
         position_set[i] = position_lue[i]; // remise à zéro de la consigne de position du potentiomètre
+        save_pot(i);                       // sauvegarde position potentiomètre
 }
 
 void moteur_set(int i) // fonction de gestion des moteurs
 {
-        if (position_lue[i] == position_set[i] || position_set[i] > max_pot || position_set[i] < min_pot) // si position lue égale à la consigne ou consigne hors bornes
+        if (position_lue[i] <= (position_set[i] + ECART_V_STOP) && position_lue[i] >= (position_set[i] - ECART_V_STOP)) // si moteur entre consigne et ECART_V_STOP
         {
-                moteur_stop(i);
+                error_state = false; // remise à zéro du flag d'erreur
+                moteur_stop(i);      // stop moteur
                 return;
         }
-        else if (position_lue[i] < (position_set[i] + ECART_V_STOP) && position_lue[i] > (position_set[i] - ECART_V_STOP)) // si moteur entre consigne et ECART_V_STOP
+        else if (position_set[i] > max_pot || position_set[i] < min_pot) // si position lue égale à la consigne ou consigne hors bornes
         {
-                moteur_stop(i);
+                error_state = true; // flag d'erreur
+                moteur_stop(i);     // stop moteur
                 return;
         }
         // *******************************************************************************************************
         else if (position_lue[i] > (position_set[i] + ECART_V_STOP)) // si moteur doit aller vers la gauche
         {
-                motor_change[i] = true;
+                error_state = false;                                          // remise à zéro du flag d'erreur
+                motor_change[i] = true;                                       // flag de changement de position du potentiomètre
                 if (position_lue[i] > (position_set[i] + (ECART_V_STOP * 4))) // vitesse max si moteur n'est pas entre consigne et ECART_V_STOP * 4
                 {
                         motor[i].drive(-speed_max);
@@ -56,9 +60,10 @@ void moteur_set(int i) // fonction de gestion des moteurs
                 }
         }
         // *******************************************************************************************************
-        if (position_lue[i] < (position_set[i] - ECART_V_STOP)) // si moteur doit aller vers la droite
+        else if (position_lue[i] < (position_set[i] - ECART_V_STOP)) // si moteur doit aller vers la droite
         {
-                motor_change[i] = true;
+                error_state = false;                                          // remise à zéro du flag d'erreur
+                motor_change[i] = true;                                       // flag de changement de position du potentiomètre
                 if (position_lue[i] < (position_set[i] - (ECART_V_STOP * 4))) // vitesse max si moteur n'est pas entre consigne et ECART_V_STOP * 4
                 {
                         motor[i].drive(speed_max);
@@ -74,7 +79,8 @@ void moteur_set(int i) // fonction de gestion des moteurs
         }
         else
         {
-                motor[i].brake(); // stop moteur
+                error_state = true;
+                motor[i].brake(); // frein moteur
                 moteur_stop(i);
                 return;
         }

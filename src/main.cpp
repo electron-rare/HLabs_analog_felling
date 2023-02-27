@@ -83,7 +83,7 @@ void setup()
     position_set[i] = position_lue[i];
   }
   bouton_set(); // lecture et controle des boutons
-  //pid_setup();  // initialisation des PID
+  // pid_setup();  // initialisation des PID
 }
 
 // *******************************************************************************************************
@@ -97,8 +97,12 @@ void loop()
   bouton_set();                    // lecture et controle des boutons
   if (state_button_change == true) // si changement d'état d'un bouton
   {
-    button_position_save();      // entregistrement de position des potentiomètres
+    button_position_save();      // enregistrement de position des potentiomètres
     state_button_change = false; // remise à zéro du flag de changement de bouton
+  }
+  if (error_state == true)
+  {
+    error_led();
   }
   // *******************************************************************************************************
   // ********************************* boucle de lecture des potentiomètres ********************************
@@ -111,41 +115,17 @@ void loop()
       if (stereo_link_state != true && const_out_L_state != true && const_out_R_state != true) // si pas de contrôle constant output
       {
         valeurs_set(i); // controle des valeurs et des relais
-        if (motor_change[i] == true)
-        {
-          moteur_stop(i); // arret du moteur
-          position_set[i] = position_lue[i];
-          motor_change[i] = false;
-          save_pot(i); // sauvegarde position potentiomètre
-        }
-        else
-        {
-          save_pot(i); // sauvegarde position potentiomètre
-        }
       }
       else // si controle constant output
       {
-        current_time = millis(); // enregistrement du temps actuel
-        if (motor_change[i] != true)
-        {
-          consigne_set();       // mise à jour des consignes
-          valeurs_const_set(i); // controle des valeurs et des relais
-          save_pot(i);          // sauvegarde position potentiomètre
-        }
+        consigne_set();       // mise à jour des consignes
+        valeurs_const_set(i); // controle des valeurs et des relais
       }
+      save_pot(i); // sauvegarde position potentiomètre
     }
     if (motor_change[i] == true)
     {
-      if (position_set[i] > position_lue[i] + ECART_V_STOP || position_set[i] < position_lue[i] - ECART_V_STOP)
-      {
-        moteur_set(i); // controle des moteurs
-      }
-      else
-      {
-        moteur_stop(i); // arret du moteur
-        motor_change[i] = false;
-        save_pot(i); // sauvegarde position potentiomètre
-      }
+      moteur_set(i); // controle du moteurs
     }
   }
 }

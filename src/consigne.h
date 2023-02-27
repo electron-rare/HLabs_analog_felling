@@ -10,20 +10,15 @@ void motor_calc(int pot, int motor) // calcul des consignes de moteurs et du fla
     if (position_set[motor] > max_pot || position_set[motor] < min_pot) // si consigne est hors bornes
     {
         motor_change[motor] = false; // pas de changement de position du potentiomètre
-        motor_change[pot] = false;   // pas de changement de position du potentiomètre
         position_set[motor] = position_lue[motor];
 #ifdef DEBUG          // si DEBUG activé
         breakpoint(); // point d'arrêt pour le debug
 #endif
         return;
     }
-    else if (position_set[motor] > (position_lue[motor] + ECART_V_STOP) || position_set[motor] < (position_lue[motor] - ECART_V_STOP)) // si consigne n'est pas hors bornes
+    else if (position_set[motor] > (position_lue[motor] + ECART_V_STOP) || position_set[motor] < (position_lue[motor] - ECART_V_STOP)) // si consigne n'est pas atteinte
     {
         motor_change[motor] = true; // il y a changement de position du potentiomètre
-        motor_change[pot] = false;  // pas de changement de position du potentiomètre
-#ifdef PID
-        myPID.SetMode(myPID.Control::timer); // mise du PID en mode automatique
-#endif
     }
 }
 
