@@ -19,26 +19,11 @@ tableau de valeurs (i) pour les relais, les valeurs de potentiomètre et les val
 // ******************** // #define DEBUG = INACTIF *******************************************************
 // ******************** #define DEBUG = ACTIF ************************************************************
 // *******************************************************************************************************
-#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG // si DEBUG activé
-#include <ArduinoLog.h>
-// #define DEBUG_VOID
-#define DEBUG_LOOP
-// #define DEBUG_LOOP_HARD
-// #define DEBUG_POT
-// #define DEBUG_RELAIS
-// #define DEBUG_LECTURE
-// #define DEBUG_BOUTON
-#define DEBUG_MOTEUR
-#define DEBUG_MOTEUR_HARD
-bool count_motor = false;
-// #define DEBUG_VALEURS
-#define DEBUG_DIFF
-#define DEBUG_CONST
-#define DEBUG_PID
-
-bool counter = true;
+#include "avr8-stub.h"
+#include "app_api.h" // only needed with flash breakpoints
 #endif
 
 // *******************************************************************************************************
@@ -56,7 +41,7 @@ bool counter = true;
 #include "bouton.h"
 #include "relais.h"
 #include "valeurs.h"
-#include "const_set.h"
+#include "consigne.h"
 
 // *******************************************************************************************************
 // ****************************************** boucle setup ***********************************************
@@ -64,17 +49,8 @@ bool counter = true;
 void setup()
 {
 #ifdef DEBUG // si DEBUG activé
-  Serial.begin(115200);
-  // Pass log level, whether to show log level, and print interface.
-  // Available levels are:
-  // LOG_LEVEL_SILENT, LOG_LEVEL_FATAL, LOG_LEVEL_ERROR, LOG_LEVEL_WARNING, LOG_LEVEL_INFO, LOG_LEVEL_TRACE, LOG_LEVEL_VERBOSE
-  // Note: if you want to fully remove all logging code, uncomment #define DISABLE_LOGGING in Logging.h
-  //       this will significantly reduce your project size
-  Log.begin(LOG_LEVEL_VERBOSE, &Serial);
-  Log.notice(F(CR "Hlabs controle de volume et de gain" CR));
-  Log.notice("par Clément SAILLANT" CR);
-  Log.notice("initialisation des variables" CR);
-  Log.notice("--------------------------------------------------" CR);
+  // initialize GDB stub
+  debug_init();
 #endif
 
   // set LED output
@@ -102,35 +78,12 @@ void setup()
     motor[i].stop();
     delay(50);
     lecture_pot(i); // lecture analogique potentiomètre
+    valeurs_set(i); // controle des valeurs et des relais
     save_pot(i);    // sauvegarde position potentiomètre
-    state_pot_change[i] = true;
+    position_set[i] = position_lue[i];
   }
-  bouton_set();                // lecture et controle des boutons
-  valeurs_set();               // controle des valeurs et des relais
-  last_change_time = millis(); // sauvegarde du temps du dernier changement de position
-
-#ifdef PID
-
-  myPID.SetMode(myPID.Control::automatic);
-  // myPID.SetMode(myPID.Control::manual);
-  // myPID.SetSampleTimeUs(pid_time);
-  myPID.SetOutputLimits(pid_limit_min, pid_limit_max); // Limit the PID output this is important to get rid of integral windup!
-  // myPID.setBias(pid_bias / 2.0);                  // Set the bias to 127.5, this is the center of the output range
-  // myPID.SetAntiWindupMode(myPID.iAwMode::iAwCondition); // Set the anti-windup mode to "do nothing"
-#endif
-#ifdef AUTOPID
-  myPID.setBangBang(ECRART_V_STOP);
-  myPID.setTimeStep(PID_TimeStep);
-#endif
-
-#ifdef DEBUG // si DEBUG activé
-  Log.notice(F("FIN DE SETUP" CR));
-  debug();
-#endif
-#ifdef DEBUG_CONST
-  Log.notice(F("CONST OUT SET ON" CR));
-  const_out_L_state = true;
-#endif
+  bouton_set(); // lecture et controle des boutons
+  //pid_setup();  // initialisation des PID
 }
 
 // *******************************************************************************************************
@@ -138,80 +91,61 @@ void setup()
 // *******************************************************************************************************
 void loop()
 {
-
-#ifdef DEBUG                                 // si DEBUG activé
-  if (last_time >= interval_loop + millis()) // si intervalle de boucle atteint
+  // *******************************************************************************************************
+  // ********************************* boucle de controle des boutons **************************************
+  // *******************************************************************************************************
+  bouton_set();                    // lecture et controle des boutons
+  if (state_button_change == true) // si changement d'état d'un bouton
   {
-    Serial.print(".");
-    Serial.print(debug_count);
-    debug_count++;
-    debug();
-    last_time = millis(); // remise à zéro du compteur de temps
+    button_position_save();      // entregistrement de position des potentiomètres
+    state_button_change = false; // remise à zéro du flag de changement de bouton
   }
-#endif
-
-  bouton_set(); // lecture et controle des boutons
   // *******************************************************************************************************
   // ********************************* boucle de lecture des potentiomètres ********************************
   // *******************************************************************************************************
   for (int i = 0; i <= 3; i++)
   {
-    lecture_pot(i);                  // lecture analogique potentiomètre avec mise à jour du flag de changement de potentiomètre
-    if (state_pot_change[i] == true) // si changement de position d'un potentiomètre
+    lecture_pot(i);                                            // lecture analogique potentiomètre avec mise à jour du flag de changement de potentiomètre
+    if (position_change[i] == true && motor_change[i] != true) // si changement de position d'un potentiomètre
     {
-      valeurs_set(); // controle des valeurs et des relais
-    }
-
-    // *******************************************************************************************************
-    // ********************************* boucle de controle des moteurs **************************************
-    // *******************************************************************************************************
-    if (stereo_link_state == true || const_out_L_state == true || const_out_R_state == true) // si un des boutons est enfoncé
-    {
-      if (motor_change[i] != state_pot_change[i] && last_change_time + bounce_time_pot >= millis()) // si pas changement de position du moteur en cours et temps depuis changement de position potentiomètre supérieur au temps de rebond
+      if (stereo_link_state != true && const_out_L_state != true && const_out_R_state != true) // si pas de contrôle constant output
       {
-#ifdef DEBUG_LOOP // si DEBUG activé
-        Log.warning(F("*** moteur %d nedd to go ***" CR), i);
-        Log.notice(F("motor_change[%d] = %d" CR), i, motor_change[i]);
-        Log.notice(F("state_pot_change[%d] = %d" CR), i, state_pot_change[i]);
-        Log.notice(F("bounce_time_pot = %d" CR), bounce_time_pot);
-        Log.notice(F("last_change_time = %d" CR), last_change_time);
-        Log.notice(F("last_change_time + bounce_time_pot = %d" CR), last_change_time + bounce_time_pot);
-        Log.notice(F("                          millis() = %d" CR), millis());
-#endif
-        lecture_pot(i); // lecture analogique potentiomètre
-        if (motor_change[0] != true && motor_change[1] != true && motor_change[2] != true && motor_change[3] != true)
+        valeurs_set(i); // controle des valeurs et des relais
+        if (motor_change[i] == true)
         {
-          consigne_set(); // controle des consignes avec controle des valeurs et des relais
+          moteur_stop(i); // arret du moteur
+          position_set[i] = position_lue[i];
+          motor_change[i] = false;
+          save_pot(i); // sauvegarde position potentiomètre
+        }
+        else
+        {
+          save_pot(i); // sauvegarde position potentiomètre
         }
       }
-      if (motor_change[i] == true) // si changement de position du moteur en cours
+      else // si controle constant output
       {
-#ifdef DEBUG_CONST // si DEBUG activé
-        if (count_motor == true)
+        current_time = millis(); // enregistrement du temps actuel
+        if (motor_change[i] != true)
         {
-
-          Log.warning(F("*** changement de position du moteur %d ***" CR), i);
-          // pidcontroller.start();
+          consigne_set();       // mise à jour des consignes
+          valeurs_const_set(i); // controle des valeurs et des relais
+          save_pot(i);          // sauvegarde position potentiomètre
         }
-#endif
+      }
+    }
+    if (motor_change[i] == true)
+    {
+      if (position_set[i] > position_lue[i] + ECART_V_STOP || position_set[i] < position_lue[i] - ECART_V_STOP)
+      {
         moteur_set(i); // controle des moteurs
       }
+      else
+      {
+        moteur_stop(i); // arret du moteur
+        motor_change[i] = false;
+        save_pot(i); // sauvegarde position potentiomètre
+      }
     }
-    // *******************************************************************************************************
-    // ********************************* boucle de controle des boutons **************************************
-    // *******************************************************************************************************
-    if (state_button_change == true) // si changement d'état d'un bouton
-    {
-#ifdef DEBUG_LOOP // si DEBUG activé
-      Log.warning(F(CR "*** changement de bouton ***" CR));
-#endif
-      diff_set();                  // entregistrement des différences de gain et de volume
-      state_button_change = false; // remise à zéro du flag de changement de bouton
-    }
-
-    // *******************************************************************************************************
-    // ********************************* boucle de sauvegarde des potentiomètre ******************************
-    // *******************************************************************************************************
-    save_pot(i); // sauvegarde position potentiomètre
   }
 }

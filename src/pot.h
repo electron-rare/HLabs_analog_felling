@@ -16,11 +16,49 @@ ResponsiveAnalogRead vol_0(vol_0_pot, true, amount_easing);
 ResponsiveAnalogRead gain_1(gain_1_pot, true, amount_easing);
 ResponsiveAnalogRead vol_1(vol_1_pot, true, amount_easing);
 
-#define max_pot 1005 // valeur max potentiomètre pour calibrage ADC
-#define min_pot 0    // valeur min potentiomètre pour calibrage ADC
+void button_position_save(); // calcul des différences de valeurs
+void save_pot(int i);        // sauvegarde position potentiomètre
+void lecture_pot(int i);     // lecture analogique potentiomètre
 
-void lecture_pot(int i); // lecture analogique potentiomètre
-void save_pot(int i);   // sauvegarde position potentiomètre
+void button_position_save() // calcul de la différence entre gain et volume
+{
+    if (const_out_L_state == 1) // si bouton const_out_L appuyé
+    {
+        for (int i = 0; i <= 1; i++)
+        {
+            lecture_pot(i);                    // lecture des potentiomètres
+            position_set[i] = position_lue[i]; // set position potentiomètre gain et volume gauche et droit
+            position_memory[i] = position_lue[i];
+        }
+    }
+
+    if (const_out_R_state == 1) // si bouton const_out_R appuyé
+    {
+        for (int i = 2; i <= 3; i++)
+        {
+            lecture_pot(i);                    // lecture des potentiomètres
+            position_set[i] = position_lue[i]; // set position potentiomètre gain et volume gauche et droit
+            position_memory[i] = position_lue[i];
+        }
+    }
+
+    if (stereo_link_state == 1) // si bouton stereo_link appuyé
+    {
+        for (int i = 0; i <= 3; i++)
+        {
+            lecture_pot(i);                    // lecture des potentiomètres
+            position_set[i] = position_lue[i]; // set position potentiomètre gain et volume gauche et droit
+            position_memory[i] = position_lue[i];
+        }
+    }
+}
+
+void save_pot(int i)
+{
+    position_save[i] = position_lue[i]; // sauvegarde position potentiomètre
+    position_change[i] = false;         // RAZ flag de changement de position du potentiomètre
+    last_change_time = millis();        // sauvegarde du temps du dernier changement de position
+}
 
 // *******************************************************************************************************
 // ****************************************** lecture bouton *********************************************
@@ -34,15 +72,14 @@ void lecture_pot(int i)
         gain_0.update();
         if (gain_0.hasChanged())
         {
-            state_pot_change[i] = true;  // il y a changement de position du potentiomètre
             last_change_time = millis(); // sauvegarde du temps du dernier changement de position
+            position_change[i] = true;   // il y a changement de position du potentiomètre
             position_lue[i] = gain_0.getValue();
             position_lue[i] = map(position_lue[i], max_pot, min_pot, 0, 1023);
-            position_lue[i] = constrain(position_lue[i], 0, max_pot);
+            position_lue[i] = constrain(position_lue[i], 0, 1023);
         }
 #else
         position_lue[0] = 512;
-        position_set[i] = 512;
 #endif
         break;
     case 1:
@@ -51,14 +88,13 @@ void lecture_pot(int i)
         if (vol_0.hasChanged())
         {
             last_change_time = millis(); // sauvegarde du temps du dernier changement de position
-            state_pot_change[i] = true;  // il y a changement de position du potentiomètre
+            position_change[i] = true;   // il y a changement de position du potentiomètre
             position_lue[i] = vol_0.getValue();
             position_lue[i] = map(position_lue[i], max_pot, min_pot, 0, 1023);
             position_lue[i] = constrain(position_lue[i], 0, 1023);
         }
 #else
         position_lue[i] = 512;
-        position_set[i] = 512;
 #endif
         break;
     case 2:
@@ -67,14 +103,13 @@ void lecture_pot(int i)
         if (gain_1.hasChanged())
         {
             last_change_time = millis(); // sauvegarde du temps du dernier changement de position
-            state_pot_change[i] = true;  // il y a changement de position du potentiomètre
+            position_change[i] = true;   // il y a changement de position du potentiomètre
             position_lue[i] = gain_1.getValue();
             position_lue[i] = map(position_lue[i], max_pot, min_pot, 0, 1023);
             position_lue[i] = constrain(position_lue[i], 0, 1023);
         }
 #else
         position_lue[i] = 512;
-        position_set[i] = 512;
 #endif
         break;
     case 3:
@@ -83,39 +118,14 @@ void lecture_pot(int i)
         if (vol_1.hasChanged())
         {
             last_change_time = millis(); // sauvegarde du temps du dernier changement de position
-            state_pot_change[i] = true;  // il y a changement de position du potentiomètre
+            position_change[i] = true;   // il y a changement de position du potentiomètre
             position_lue[i] = vol_1.getValue();
             position_lue[i] = map(position_lue[i], max_pot, min_pot, 0, 1023);
             position_lue[i] = constrain(position_lue[i], 0, 1023);
         }
 #else
         position_lue[i] = 512;
-        position_set[i] = 512;
 #endif
         break;
     }
-#ifdef DEBUG_POT // si DEBUG activé
-    if (state_pot_change[i] == true)
-    {
-        Log.notice(F("il y a changement de potentiomètre dans lecture pot %d" CR), i);
-        Log.trace("position_lue[%d] = %d" CR, i, position_lue[i]);
-        Log.trace("position_save[%d] = %d" CR, i, position_save[i]);
-    }
-#endif
-}
-
-void save_pot(int i)
-{
-#ifdef DEBUG_POT // si DEBUG activé
-    if (state_pot_change[i] == true)
-    {
-        Log.notice(F("======= void save_pot(%d)" CR), i);
-    }
-#endif
-    position_save[i] = position_lue[i]; // sauvegarde position potentiomètre
-    if (last_change_time + bounce_time_pot >= millis())
-    {
-        state_pot_change[i] = false; // RAZ flag de changement de position du potentiomètre
-    }
-    // last_change_time = millis();        // sauvegarde du temps du dernier changement de position
 }

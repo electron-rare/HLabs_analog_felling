@@ -1,61 +1,66 @@
 // *******************************************************************************************************
 // ****************************************** gestion valeurs ********************************************
 // *******************************************************************************************************
-void valeurs_set(int i);      // gestion des valeurs
-void smoothgain_set(int i);   // calcul des valeurs lissées de gain et mise à jour des relais
-void smoothvolume_set(int i); // calcul des valeurs lissées de volume et mise à jour des relais
+void valeurs_set(int i);       // gestion des valeurs
+void valeurs_const_set(int i); // gestion des valeurs constant ouptut
+void smoothgain_set(int i);    // calcul des valeurs lissées de gain et mise à jour des relais
+void smoothvolume_set(int i);  // calcul des valeurs lissées de volume et mise à jour des relais
 
-void valeurs_set()
+void valeurs_set(int i)
 {
-#ifdef DEBUG_VALEURS // si DEBUG activé
-    Log.notice(F("*** valeurs_set ***" CR));
-#endif
-    if (state_pot_change[0] == true && position_lue[0] != position_save[0]) // si changement d'état du potentiomètre de gain gauche
+    if (position_change[i] == true && position_lue[i] != position_save[i]) // si changement d'état du potentiomètre de gain gauche
     {
-        smoothgain[0] = byte(position_lue[0] / 4);
-        position_change[0] = true;   // il y a changement de position du potentiomètre de gain gauche
-        smoothgain_set(0);           // mise à jour de valeur du relais gain gauche
-#ifdef DEBUG_VALEURS
-        Log.notice(F("changement pot gain gauche" CR));
-        Log.trace(F("smoothgain[0] = %d" CR), smoothgain[0]);
-        Log.trace(F("relais_gain_val[0] = %d" CR), relais_gain_val[0]);
-#endif
-    }
-    if (state_pot_change[1] == true && position_lue[1] != position_save[1]) // si changement d'état du potentiomètre de volume gauche
-    {
-        smoothvol[0] = byte(position_lue[1] / 4) - 1; // 156
-        position_change[1] = true;                    // il y a changement de position du potentiomètre de volume gauche
-        smoothvolume_set(0);
-#ifdef DEBUG_VALEURS
-        Log.notice(F("changement pot volume gauche" CR));
-        Log.trace(F("smoothvol[0] = %d" CR), smoothvol[0]);
-        Log.trace(F("relais_vol_val[0] = %d" CR), relais_vol_val[0]);
-#endif
-    }
-    if (state_pot_change[2] == true && position_lue[2] != position_save[2]) // si changement d'état du potentiomètre de gain droit
-    {
-        smoothgain[1] = byte(position_lue[2] / 4); // 156
-        position_change[2] = true;                 // il y a changement de position du potentiomètre de gain droitf
-        smoothgain_set(1);                         // mise à jour de valeur du relais gain droit
-#ifdef DEBUG_VALEURS
-        Log.notice(F("changement pot gain droit" CR));
-        Log.trace(F("smoothgain[1] = %d" CR), smoothgain[1]);
-        Log.trace(F("relais_gain_val[1] = %d" CR), relais_gain_val[1]);
-#endif
-    }
-    if (state_pot_change[3] == true && position_lue[3] != position_save[3]) // si changement d'état du potentiomètre de volume droit
-    {
-        smoothvol[1] = byte(position_lue[3] / 4) - 1; // 156
-        position_change[3] = true;                    // il y a changement de position du potentiomètre de volume droit
-        smoothvolume_set(1);                          // mise à jour de valeur du relais volume droit
-#ifdef DEBUG_VALEURS
-        Log.notice(F("changement pot volume droit" CR));
-        Log.trace(F("smoothvol[1] = %d" CR), smoothvol[1]);
-        Log.trace(F("relais_vol_val[1] = %d" CR), relais_vol_val[1]);
-#endif
+        switch (i)
+        {
+        case 0:
+            smoothgain[0] = byte(position_lue[0] / 4);
+            smoothgain_set(0); // mise à jour de valeur du relais gain gauche
+            break;
+        case 1:
+            smoothvol[0] = byte(position_lue[1] / 4) - 1; // 156
+            smoothvolume_set(0);
+            break;
+        case 2:
+            smoothgain[1] = byte(position_lue[2] / 4); // 156
+            smoothgain_set(1);                         // mise à jour de valeur du relais gain droit
+            break;
+        case 3:
+            smoothvol[1] = byte(position_lue[3] / 4) - 1; // 156
+            smoothvolume_set(1);                          // mise à jour de valeur du relais volume droit
+            break;
+        default:
+            break;
+        }
     }
 }
 
+void valeurs_const_set(int i)
+{
+    if (position_change[i] == true && position_set[i] != position_save[i]) // si changement d'état du potentiomètre de gain gauche
+    {
+        switch (i)
+        {
+        case 0:
+            smoothgain[0] = byte(position_set[0] / 4); // adaptation de valeur
+            smoothgain_set(0);                         // mise à jour de valeur du relais gain gauche
+            break;
+        case 1:
+            smoothvol[0] = byte(position_set[1] / 4) - 1; // adaptation de valeur
+            smoothvolume_set(0);                          // mise à jour de valeur du relais volume gauche
+            break;
+        case 2:
+            smoothgain[1] = byte(position_set[2] / 4); // adaptation de valeur
+            smoothgain_set(1);                         // mise à jour de valeur du relais gain droit
+            break;
+        case 3:
+            smoothvol[1] = byte(position_set[3] / 4) - 1; // adaptation de valeur
+            smoothvolume_set(1);                          // mise à jour de valeur du relais volume droit
+            break;
+        default:
+            break;
+        }
+    }
+}
 void smoothgain_set(int i)
 {
     // lisages manuel des valeurs de gain
@@ -355,12 +360,6 @@ void smoothgain_set(int i)
     {
         relais_gain_val[i] = smoothgain[i] + 99;
     }
-#ifdef DEBUG_RELAIS
-    Log.notice(F(CR "int smoothgain_set()" CR));
-    Log.trace(F("i = %d" CR), i);
-    Log.trace(F("relais_gain_val = %d" CR), relais_gain_val[i]);
-    Log.trace(F("smoothgain = %d" CR), smoothgain[i]);
-#endif
     if (i == 0)
     {
         relais_set(0); // mise à jour des relais
@@ -376,12 +375,6 @@ void smoothvolume_set(int i)
     smoothvol[i] = map(smoothvol[i], 0, 255, 0, 255); // map de 0 à 255
     smoothvol[i] = constrain(smoothvol[i], 0, 255);   // map de 0 à 255
     relais_vol_val[i] = smoothvol[i];                 // valeur du relais = valeur du volume
-#ifdef DEBUG_RELAIS
-    Log.notice(F(CR "int smoothvolume_set()" CR));
-    Log.notice(F("i = %d" CR), i);
-    Log.notice(F("relais_vol_val = %d" CR), relais_vol_val[i]);
-    Log.notice(F("smoothvol = %d" CR), smoothvol[i]);
-#endif
     if (i == 0)
     {
         relais_set(1); // mise à jour des relais

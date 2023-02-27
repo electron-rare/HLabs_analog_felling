@@ -25,16 +25,20 @@
 #define vol_1_motor 0xCA  // A0 = 1, A1 = 1
 
 // variables potentiomètre
-int consigne[4] = {0, 0, 0, 0};                                      // tableau de consigne des potentiomètre
-int position_lue[4] = {0, 0, 0, 0};                                  // tableau de valeur lus sur les potentiomètre
+int position_lue[4] = {0, 0, 0, 0};                                  // tableau des valeur lus sur les potentiomètre
+int position_save[4] = {0, 0, 0, 0};                                 // tableau de sauvegarde de valeurs des potentiomètre pour comparaison
 int position_set[4] = {0, 0, 0, 0};                                  // tableau de consigne de position des potentiomètre
-int position_save[4] = {0, 0, 0, 0};                                 // tableau de sauvegarde de valeurs des potentiomètre
-bool position_change[4] = {false, false, false, false};              // tableau de flag de positionnement des potentiomètre
-bool motor_change[4] = {false, false, false, false};                 // tableau de flag de changement de positionnement des potentiomètre
+int position_memory[4] = {0, 0, 0, 0};                               // tableau de memorisation de valeur des potentiomètre pour mode constant output
+bool position_change[4] = {false, false, false, false};              // tableau de flag de changement de position des potentiomètre
+bool motor_change[4] = {false, false, false, false};                 // tableau de flag pour moteurs des potentiomètre
 byte analog_pot[4] = {gain_0_pot, vol_0_pot, gain_1_pot, vol_1_pot}; // tableau de PIN des potentiomètre
+#define max_pot 1005                                                 // valeur max potentiomètre pour calibrage ADC
+#define min_pot 0                                                    // valeur min potentiomètre pour calibrage ADC
 
+// variable pour gestion du temps
 unsigned long last_change_time = millis(); // remise à zéro du compteur de temps
-#define bounce_time_pot 300 // interval de temps entre 2 lecture de l'état du potentiomètre
+unsigned long current_time = millis();     // variable de temps courant
+#define bounce_time_pot 150                // interval de temps entre 2 lecture de l'état du potentiomètre
 
 // *******************************************************************************************************
 // ****************************************** relais *****************************************************
@@ -45,10 +49,11 @@ unsigned long last_change_time = millis(); // remise à zéro du compteur de tem
 #define gain_1_relais 0x00
 #define vol_1_relais 0x00
 // variables relais
-byte relais_vol_val[2] = {0, 0};   // tableau de valeur des relais volumes
 byte relais_gain_val[2] = {0, 0};  // tableau de valeur des relais gain
+byte relais_vol_val[2] = {0, 0};   // tableau de valeur des relais volumes
 byte relais_old[4] = {0, 0, 0, 0}; // tableau de comparaison de valeur des relais
 byte relais_map[4] = {0, 0, 0, 0}; // tableau de mappage des valeur des relais
+#define delay_relais 1             // temps de commutation entre relais
 
 // *******************************************************************************************************
 // ****************************************** boutton *****************************************************
@@ -66,65 +71,7 @@ bool stereo_link_state = false;     // variable d'état du bouton stereo_link
 // *******************************************************************************************************
 bool state_pot_change[4] = {false, false, false, false}; // variable de changement d'état
 bool state_button_change = true;                         // variable de changement d'état
-int diff_gain;                                           // variable de différence de valeur entre les 2 potentiomètre de gain
-int diff_vol;                                            // variable de différence de valeur entre les 2 potentiomètre de volume
-int diff_const_out_L;                                    // variable de différence de valeur du canal gauche
-int diff_const_out_R;                                    // variable de différence de valeur du canal droite
+bool const_state = false;                                // variable d'état d'activtion d'un constant ouptut
+bool error_motor = false;                                // variable d'erreur de communication avec le moteur
 int smoothgain[2] = {0, 0};                              // tableau de valeur de lissage du gain
 int smoothvol[2] = {0, 0};                               // tableau de valeur de lissage du volume
-
-// ******************************************************************************************************
-#ifdef DEBUG                  // si DEBUG activé
-unsigned long last_time;      // variable de comparaison de temps
-#define interval_loop 1000    // variable de comparaison de temps
-unsigned int debug_count = 1; // variable de comptage de boucle
-
-void debug()
-{
-#ifdef DEBUG_LOOP_HARD // si DEBUG activé
-
-    Log.verbose(F("--------------------------------------------------" CR));
-    Log.verbose(F("-----------------  DEBUG  ------------------------" CR));
-    Log.verbose(F("--------------------------------------------------" CR));
-    Log.verbose(F("millis() = %d" CR), millis());
-    Log.verbose(F("last_time = %d" CR), last_time);
-    Log.verbose(F("interval_loop = %d" CR), interval_loop);
-    Log.verbose(F("state_pot_change = %d" CR), state_pot_change);
-    Log.verbose(F("state_button_change = %d" CR), state_button_change);
-    Log.verbose(F("stereo_link_state = %d" CR), stereo_link_state);
-    Log.verbose(F("const_out_L_state = %d" CR), const_out_L_state);
-    Log.verbose(F("const_out_R_state = %d" CR), const_out_R_state);
-    Log.verbose(F("stereo_link_state_old = %d" CR), stereo_link_state_old);
-    Log.verbose(F("const_out_L_state_old = %d" CR), const_out_L_state_old);
-    Log.verbose(F("const_out_R_state_old = %d" CR CR), const_out_R_state_old);
-#ifdef DEBUG_LEFT
-    Log.verbose(F("diff_const_out_L = %d" CR), diff_const_out_L);
-    for (int i = 0; i <= 1; i++)
-    {
-        Log.verbose(F("--------< %d >--------" CR), i);
-        Log.verbose(F("position_save[%d] = %d" CR), i, position_save[i]);
-        Log.verbose(F("position_lue[%d] = %d" CR), i, position_lue[i]);
-        Log.verbose(F("position_set[%d] = %d" CR), i, position_set[i]);
-        Log.verbose(F("relais_old[%d] = %d" CR), i, relais_old[i]);
-        Log.verbose(F("relais_map[%d] = %d" CR), i, relais_map[i]);
-    }
-#ifdef DEBUG_RIGHT
-    Log.verbose(F("diff_const_out_R = %d" CR CR), diff_const_out_R);
-    for (int i = 2; i <= 3; i++)
-    {
-        Log.verbose(F("--------< %d >--------" CR), i);
-        Log.verbose(F("position_save[%d] = %d" CR), i, position_save[i]);
-        Log.verbose(F("position_lue[%d] = %d" CR), i, position_lue[i]);
-        Log.verbose(F("position_set[%d] = %d" CR), i, position_set[i]);
-        Log.verbose(F("relais_old[%d] = %d" CR), i, relais_old[i]);
-        Log.verbose(F("relais_map[%d] = %d" CR), i, relais_map[i]);
-    }
-#endif
-    last_time = millis(); // remise à zéro du compteur de temps
-    Log.verbose(F("--------------------------------------------------" CR));
-    Log.verbose(F("----------------  END DEBUG  ---------------------" CR));
-    Log.verbose(F("--------------------------------------------------" CR));
-#endif
-#endif
-}
-#endif
