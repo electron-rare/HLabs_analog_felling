@@ -83,7 +83,6 @@ void setup()
     position_set[i] = position_lue[i];
   }
   bouton_set(); // lecture et controle des boutons
-  // pid_setup();  // initialisation des PID
 }
 
 // *******************************************************************************************************
@@ -91,41 +90,44 @@ void setup()
 // *******************************************************************************************************
 void loop()
 {
-  // *******************************************************************************************************
-  // ********************************* boucle de controle des boutons **************************************
-  // *******************************************************************************************************
   bouton_set();                    // lecture et controle des boutons
   if (state_button_change == true) // si changement d'état d'un bouton
   {
     button_position_save();      // enregistrement de position des potentiomètres
     state_button_change = false; // remise à zéro du flag de changement de bouton
   }
-  if (error_state == true)
-  {
-    error_led();
-  }
   // *******************************************************************************************************
   // ********************************* boucle de lecture des potentiomètres ********************************
   // *******************************************************************************************************
   for (int i = 0; i <= 3; i++)
   {
-    lecture_pot(i);                                            // lecture analogique potentiomètre avec mise à jour du flag de changement de potentiomètre
-    if (position_change[i] == true && motor_change[i] != true) // si changement de position d'un potentiomètre
+    // *******************************************************************************************************
+    // ********************************* boucle de controle des boutons **************************************
+    // *******************************************************************************************************
+    lecture_pot(i);                 // lecture analogique potentiomètre avec mise à jour du flag de changement de potentiomètre
+    if (position_change[i] == true) // si changement de position d'un potentiomètre
     {
       if (stereo_link_state != true && const_out_L_state != true && const_out_R_state != true) // si pas de contrôle constant output
       {
         valeurs_set(i); // controle des valeurs et des relais
       }
-      else // si controle constant output
+      else if (motor_change[i] != true) // si contrôle constant output et moteur arrêté
       {
-        consigne_set();       // mise à jour des consignes
-        valeurs_const_set(i); // controle des valeurs et des relais
+        consigne_set(i); // mise à jour des consignes
+        for (int i = 0; i <= 3; i++)
+        {
+          valeurs_const_set(i); // controle des valeurs et des relais
+        }
       }
       save_pot(i); // sauvegarde position potentiomètre
     }
-    if (motor_change[i] == true)
+    if (motor_change[i] == true) // si moteur en mouvement
     {
       moteur_set(i); // controle du moteurs
     }
+  }
+  if (error_state == true)
+  {
+    error_led();
   }
 }

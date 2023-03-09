@@ -36,7 +36,7 @@ void valeurs_set(int i)
 
 void valeurs_const_set(int i)
 {
-    if (position_change[i] == true && position_set[i] != position_save[i]) // si changement d'état du potentiomètre
+    if (position_set[i] != position_save[i]) // si changement d'état du potentiomètre
     {
         switch (i)
         {
@@ -61,7 +61,7 @@ void valeurs_const_set(int i)
         }
     }
 }
- 
+
 void smoothgain_set(int i)
 {
     // lisages manuel des valeurs de gain

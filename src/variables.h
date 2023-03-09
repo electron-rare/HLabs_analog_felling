@@ -32,8 +32,8 @@ int position_memory[4] = {0, 0, 0, 0};                               // tableau 
 bool position_change[4] = {false, false, false, false};              // tableau de flag de changement de position des potentiomètre
 bool motor_change[4] = {false, false, false, false};                 // tableau de flag pour moteurs des potentiomètre
 byte analog_pot[4] = {gain_0_pot, vol_0_pot, gain_1_pot, vol_1_pot}; // tableau de PIN des potentiomètre
-#define max_pot 1005                                                 // valeur max potentiomètre pour calibrage ADC
-#define min_pot 0                                                    // valeur min potentiomètre pour calibrage ADC
+#define max_pot 1000                                                 // valeur max potentiomètre pour calibrage ADC
+#define min_pot 10                                                    // valeur min potentiomètre pour calibrage ADC
 // variable pour gestion du temps
 unsigned long last_change_time = millis(); // remise à zéro du compteur de temps
 unsigned long current_time = millis();     // variable de temps courant
@@ -75,6 +75,7 @@ bool const_state = false;                                // variable d'état d'a
 bool error_motor = false;                                // variable d'erreur de communication avec le moteur
 int smoothgain[2] = {0, 0};                              // tableau de valeur de lissage du gain
 int smoothvol[2] = {0, 0};                               // tableau de valeur de lissage du volume
+int motor_speed[4] = {0, 0, 0, 0};                       // variable de vitesse de rotation du moteur
 
 // *******************************************************************************************************
 // ****************************************** fonction error LED  ****************************************

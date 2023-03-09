@@ -9,7 +9,9 @@
 // increase this to lessen the amount of easing (such as 0.1) and make the responsive values more responsive
 // but doing so may cause more noise to seep through if sleep is not enabled
 
-#define amount_easing 0.05 // valeur d'atténuation du potentiomètre
+// #define amount_easing 0.05 // valeur d'atténuation du potentiomètre
+#define amount_easing 0.1 // valeur d'atténuation du potentiomètre
+
 
 ResponsiveAnalogRead gain_0(gain_0_pot, true, amount_easing);
 ResponsiveAnalogRead vol_0(vol_0_pot, true, amount_easing);

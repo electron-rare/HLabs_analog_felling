@@ -87,7 +87,10 @@ void stereo_link_set() // gestion du bouton stereo_link
         digitalWrite(stereo_link_led, LOW); // éteint LED stereo_link
         for (int i = 0; i < 3; i++)         // pour chaque moteur
         {
-            motor[i].stop(); // arrêt moteur
+            motor[i].stop();                      // arrêt moteur
+            position_memory[i] = position_lue[i]; // sauvegarde position moteur
+            position_set[i] = position_lue[i];    // position moteur = position lue
+            motor_change[i] = false;              // pas de changement moteur
         }
     }
 }
@@ -103,7 +106,10 @@ void const_out_L_set() // gestion du bouton const_out_L
         digitalWrite(const_out_L_led, LOW); // éteint LED const_out_L
         for (int i = 0; i < 1; i++)         // pour chaque moteur
         {
-            motor[i].stop(); // arrêt moteur
+            motor[i].stop();                      // arrêt moteur
+            position_memory[i] = position_lue[i]; // sauvegarde position moteur
+            position_set[i] = position_lue[i];    // position moteur = position lue
+            motor_change[i] = false;              // pas de changement moteur
         }
     }
 }
@@ -119,7 +125,10 @@ void const_out_R_set() // gestion du bouton const_out_R
         digitalWrite(const_out_R_led, LOW); // éteint LED const_out_R
         for (int i = 2; i < 3; i++)         // pour chaque moteur
         {
-            motor[i].stop(); // arrêt moteur
+            motor[i].stop();                      // arrêt moteur
+            position_memory[i] = position_lue[i]; // sauvegarde position moteur
+            position_set[i] = position_lue[i];    // position moteur = position lue
+            motor_change[i] = false; // pas de changement moteur
         }
     }
 }
