@@ -1,14 +1,3 @@
 /*
-Faire un calcul de consigne pour toujours avoir un écart définit entre les deux potar
-
-faire PID avec analogRead pour voir si plus réactif
-
-
-pour avoir les valeur de PID faire un code de test pour connaitre les valeurs
-Set PID value :
-Le PID semble mal fonctionner car le temps de boucle est trop long pour qu'il puisse faire correctement son calcul
-#define __Kp 260  // Proportional constant
-#define __Ki 2.7  // Integral Constant
-#define __Kd 2000 // Derivative Constant
 
 */

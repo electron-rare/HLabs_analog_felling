@@ -1,17 +1,16 @@
 /*
-Hlabs controle de volume et de gain
-par Clément SAILLANT
+Hlabs controle de volume et de gain pour préampli stéréo avec fonction de contrôle constant output
+
+https://www.hlabs.audio
+https://www.facebook.com/hlabs.audio
+contact@hlabs.audio
+
+code par Clément SAILLANT pour Hlabs - 2023
 c.saillant@gmail.com
+0625334420
 02/2023
 */
 
-/*
-tableau de valeurs (i) pour les relais, les valeurs de potentiomètre et les valeurs de lissage
-0 : vol_0   volume gauche
-1 : gain_0  gain gauche
-2 : vol_1   volume droite
-3 : gain_1  gain droite
-*/
 #include <Arduino.h>
 
 // *******************************************************************************************************
@@ -19,18 +18,13 @@ tableau de valeurs (i) pour les relais, les valeurs de potentiomètre et les val
 // ******************** // #define DEBUG = INACTIF *******************************************************
 // ******************** #define DEBUG = ACTIF ************************************************************
 // *******************************************************************************************************
+
 // #define DEBUG
 
 #ifdef DEBUG // si DEBUG activé
 #include "avr8-stub.h"
 #include "app_api.h" // only needed with flash breakpoints
 #endif
-
-// *******************************************************************************************************
-// **************************** Activation ou non LEFT & RIGHT *******************************************
-// *******************************************************************************************************
-#define ENABLE_LEFT
-// #define ENABLE_RIGHT
 
 // *******************************************************************************************************
 // ****************************************** include ***************************************************
@@ -109,14 +103,14 @@ void loop()
     {
       if (stereo_link_state != true && const_out_L_state != true && const_out_R_state != true) // si pas de contrôle constant output
       {
-        valeurs_set(i); // controle des valeurs et des relais
+        valeurs_set(i); // controle des valeurs et des relais en mode normal
       }
-      else if (motor_change[i] != true) // si contrôle constant output et moteur arrêté
+      else if (motor_change[i] != true) // si contrôle constant output ou stereo link, et moteur arrêté
       {
         consigne_set(i); // mise à jour des consignes
         for (int i = 0; i <= 3; i++)
         {
-          valeurs_const_set(i); // controle des valeurs et des relais
+          valeurs_const_set(i); // controle des valeurs et des relais en mode constant output
         }
       }
       save_pot(i); // sauvegarde position potentiomètre

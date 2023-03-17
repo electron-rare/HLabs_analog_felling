@@ -12,17 +12,17 @@
 // définition PIN curseur potentiomètre
 #define gain_0_pot A1 // entrée pot gain gauche
 #define vol_0_pot A0  // entrée pot volume gauche
-#define gain_1_pot A2 // entrée pot gain droite
-#define vol_1_pot A3  // entrée pot volume droite
+#define gain_1_pot A3 // entrée pot gain droite
+#define vol_1_pot A2  // entrée pot volume droite
 
 // *******************************************************************************************************
 // ****************************************** potentiomètre **********************************************
 // *******************************************************************************************************
 // adresse moteur
-#define gain_0_motor 0xC8 // A0 = open, A1 = 1
-#define vol_0_motor 0xCE  // A0 = open, A1 = open
-#define gain_1_motor 0xD0 // A0 = 1, A1 = open
-#define vol_1_motor 0xCA  // A0 = 1, A1 = 1
+#define gain_0_motor 0xC8 // A0 = open, A1 = open
+#define vol_0_motor 0xCE  // A0 = open, A1 = 1
+#define gain_1_motor 0xC2 // A0 = open, A1 = 0
+#define vol_1_motor 0xC6  // A0 = 0, A1 = open
 
 // variables potentiomètre
 int position_lue[4] = {0, 0, 0, 0};                                  // tableau des valeur lus sur les potentiomètre
@@ -32,12 +32,12 @@ int position_memory[4] = {0, 0, 0, 0};                               // tableau 
 bool position_change[4] = {false, false, false, false};              // tableau de flag de changement de position des potentiomètre
 bool motor_change[4] = {false, false, false, false};                 // tableau de flag pour moteurs des potentiomètre
 byte analog_pot[4] = {gain_0_pot, vol_0_pot, gain_1_pot, vol_1_pot}; // tableau de PIN des potentiomètre
-#define max_pot 1000                                                 // valeur max potentiomètre pour calibrage ADC
-#define min_pot 10                                                    // valeur min potentiomètre pour calibrage ADC
-// variable pour gestion du temps
+#define max_pot 1023                                                 // valeur max potentiomètre pour calibrage ADC
+#define min_pot 0                                                   // valeur min potentiomètre pour calibrage ADC
+
+// variable de gestion du temps
 unsigned long last_change_time = millis(); // remise à zéro du compteur de temps
 unsigned long current_time = millis();     // variable de temps courant
-
 #define bounce_time_pot 150 // interval de temps entre 2 lecture de l'état du potentiomètre
 
 // *******************************************************************************************************
@@ -46,8 +46,9 @@ unsigned long current_time = millis();     // variable de temps courant
 // adresse carte relais
 #define gain_0_relais 0x39 // A0 = 0, A1 = 1, A2 = 1
 #define vol_0_relais 0x38  // A0 = 1, A1 = 1, A2 = 1
-#define gain_1_relais 0x00
-#define vol_1_relais 0x00
+#define gain_1_relais 0x3B // A0 = 0, A1 = 0, A2 = 1
+#define vol_1_relais 0x3A  // A0 = 1, A1 = 0, A2 = 1
+
 // variables relais
 byte relais_gain_val[2] = {0, 0};  // tableau de valeur des relais gain
 byte relais_vol_val[2] = {0, 0};   // tableau de valeur des relais volumes
