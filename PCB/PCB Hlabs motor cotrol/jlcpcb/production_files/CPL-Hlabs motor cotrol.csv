@@ -1,0 +1,14 @@
+Designator,Val,Package,Mid X,Mid Y,Rotation,Layer
+C1,220uF,CP_Elec_6.3x7.7,116.45,-116.72,0.0,top
+C2,100nF,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,111.32,-121.18,180.0,top
+C3,0.1uF,C_1812_4532Metric_Pad1.57x3.40mm_HandSolder,103.8,-119.24,180.0,top
+C4,47uF,CP_Elec_6.3x5.4,100.0,-127.0,-90.0,top
+J1,Conn_02x04_Odd_Even,IDC-Header_2x04_P2.54mm_Vertical,107.94,-137.2525,90.0,top
+L1,220uH,L_Vishay_IFSC-1515AH_4x4x1.8mm,106.19,-123.84,180.0,top
+L2,220mH,L_Vishay_IFSC-1515AH_4x4x1.8mm,106.2,-128.5,180.0,top
+R1,5k,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,94.0,-136.5,180.0,top
+R2,"7,5k",R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,94.0,-134.5,0.0,top
+R3,"1,5R 0,1% 0,5W",R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,89.5,-121.75,90.0,top
+RV1,Motorized_Potentiometer,Potentiometer_RC-1601,79.5,-128.94,180.0,bottom
+U1,DRV8830DGQ,DRV8830DGQ,113.362937,-125.234483,-90.0,top
+U2,DRV8870DDA,Texas_HTSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.95x4.9mm_Mask2.4x3.1mm_ThermalVias,90.0,-128.25,90.0,top

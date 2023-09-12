@@ -1,0 +1,12 @@
+Designator,Val,Package,Mid X,Mid Y,Rotation,Layer
+C1,220uF,CP_Radial_D10.0mm_P2.50mm_P5.00mm,124.206,-134.366,0.0,top
+C2,100nF,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,107.188,-118.618,-90.0,top
+C3,10uF,CP_Radial_D5.0mm_P2.00mm,93.157113,-134.62,180.0,top
+J1,Conn_02x04_Odd_Even,IDC-Header_2x04_P2.54mm_Vertical,126.9905,-123.19,180.0,top
+L1,L_Small,L_6.3x6.3_H3,105.1306,-137.033,180.0,top
+R1,10k,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,117.602,-111.998,-90.0,top
+R2,10k,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,115.57,-112.014,-90.0,top
+R3,10k,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,113.538,-112.014,-90.0,top
+RV1,Motorized_Potentiometer,Potentiometer_RC-1601,77.3575,-114.67,0.0,top
+U1,DGQ10_2P18X1P72,DRV8830DGQ,111.394999,-116.824001,0.0,top
+U2,MX6208,SOP-8_3.9x4.9mm_P1.27mm,102.108,-126.746,0.0,top

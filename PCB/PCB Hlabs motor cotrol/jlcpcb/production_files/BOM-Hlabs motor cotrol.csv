@@ -1,0 +1,16 @@
+Comment,Designator,Footprint,LCSC
+100nF,C2,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,C66501
+DRV8830DGQ,U1,DRV8830DGQ,
+Conn_02x04_Odd_Even,J1,IDC-Header_2x04_P2.54mm_Vertical,
+Motorized_Potentiometer,RV1,Potentiometer_RC-1601,
+"1,5R 0,1% 0,5W",R3,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,
+0.1uF,C3,C_1812_4532Metric_Pad1.57x3.40mm_HandSolder,
+220uF,C1,CP_Elec_6.3x7.7,
+"7,5k",R2,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,
+5k,R1,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,
+DRV8870DDA,U2,Texas_HTSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.95x4.9mm_Mask2.4x3.1mm_ThermalVias,
+220uH,L1,L_Vishay_IFSC-1515AH_4x4x1.8mm,
+SolderJumper_3_Open,A0,SolderJumper-3_P1.3mm_Open_RoundedPad1.0x1.5mm,
+SolderJumper_3_Open,A1,SolderJumper-3_P1.3mm_Open_RoundedPad1.0x1.5mm,
+47uF,C4,CP_Elec_6.3x5.4,
+220mH,L2,L_Vishay_IFSC-1515AH_4x4x1.8mm,

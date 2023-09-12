@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "footprints")(type "KiCad")(uri "${KIPRJMOD}/ul_DRV8830DGQ/KiCAD/2022-08-15_13-58-52/footprints.pretty")(options "")(descr ""))
+  (lib (name "DRV8830DRCR")(type "KiCad")(uri "/Users/electron_rare/Downloads/DRV8830DRCR")(options "")(descr ""))
+)
