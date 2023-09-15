@@ -74,15 +74,27 @@
   "project": {
     "files": [
       {
+        "name": "Hlabs motor cotrol.kicad_pcb",
+        "open": false,
+        "window": {
+          "display": 0,
+          "maximized": false,
+          "pos_x": 119,
+          "pos_y": 89,
+          "size_x": 1496,
+          "size_y": 883
+        }
+      },
+      {
         "name": "Hlabs motor cotrol.kicad_sch",
         "open": false,
         "window": {
           "display": 0,
           "maximized": true,
           "pos_x": 116,
-          "pos_y": 110,
+          "pos_y": 107,
           "size_x": 1496,
-          "size_y": 874
+          "size_y": 880
         }
       }
     ]

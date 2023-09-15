@@ -74,25 +74,13 @@
   "project": {
     "files": [
       {
-        "name": "Hlabs motor cotrol.kicad_pcb",
+        "name": "Hlabs motor cotrol cnc proto.kicad_pcb",
         "open": true,
         "window": {
           "display": 0,
-          "maximized": true,
-          "pos_x": 336,
-          "pos_y": 106,
-          "size_x": 1680,
-          "size_y": 1025
-        }
-      },
-      {
-        "name": "Hlabs motor cotrol cnc proto.kicad_pcb",
-        "open": false,
-        "window": {
-          "display": 0,
           "maximized": false,
-          "pos_x": 10,
-          "pos_y": 109,
+          "pos_x": 92,
+          "pos_y": 171,
           "size_x": 1496,
           "size_y": 883
         }
