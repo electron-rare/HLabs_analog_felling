@@ -46,15 +46,13 @@ void adapt_pot(int value, int i)
         map_value = map(map_value, calibrating_midle_pot[i], max_val_pot, middle_value + 1, max_val_pot);
 #endif
     position_lue[i] = constrain(map_value, min_val_pot, max_val_pot);
-
+// debug serial
     Serial.print("position_lue[");
     Serial.print(i);
     Serial.print("] = ");
     Serial.println(position_lue[i]);
     Serial.print("map_value = ");
     Serial.println(map_value);
-    Serial.print("value = ");
-    Serial.println(value);
 }
 
 void lecture_pot(int i) // lecture analogique potentiomètre

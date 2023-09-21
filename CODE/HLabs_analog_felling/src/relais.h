@@ -10,7 +10,7 @@ PCF8574 PCF_gain_0(gain_0_relais);
 PCF8574 PCF_vol_1(vol_1_relais);
 PCF8574 PCF_gain_1(gain_1_relais);
 
-void relais_set(int relais); // fonction de mappage des valeur pour envoie sur les cartes relais
+void relais_set(int relais);                             // fonction de mappage des valeur pour envoie sur les cartes relais
 void relais_send(int relais, int value, int byte_value); // fonction d'envoie de valeur sur les cartes relais
 
 void relais_set(int relais)
@@ -41,11 +41,17 @@ void relais_set(int relais)
             {
                 if (bitRead(relais_map[relais], j) == 1)
                 {
-                    relais_send(relais, 1, j);
+                    if (relais == 0 or relais == 2)
+                        relais_send(relais, 1, j);
+                    else if (relais == 1 or relais == 3)
+                        relais_send(relais, 0, j);
                 }
                 else if (bitRead(relais_map[relais], j) == 0)
                 {
-                    relais_send(relais, 0, j);
+                    if (relais == 0 or relais == 2)
+                        relais_send(relais, 0, j);
+                    else if (relais == 1 or relais == 3)
+                        relais_send(relais, 1, j);
                 }
             }
         }
@@ -56,11 +62,17 @@ void relais_set(int relais)
             {
                 if (bitRead(relais_map[relais], j) == 1)
                 {
-                    relais_send(relais, 1, j);
+                    if (relais == 0 or relais == 2)
+                        relais_send(relais, 1, j);
+                    else if (relais == 1 or relais == 3)
+                        relais_send(relais, 0, j);
                 }
                 else if (bitRead(relais_map[relais], j) == 0)
                 {
-                    relais_send(relais, 0, j);
+                    if (relais == 0 or relais == 2)
+                        relais_send(relais, 0, j);
+                    else if (relais == 1 or relais == 3)
+                        relais_send(relais, 1, j);
                 }
             }
         }

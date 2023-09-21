@@ -31,7 +31,7 @@ bool motor_change[4] = {false, false, false, false};                 // tableau 
 byte analog_pot[4] = {gain_0_pot, vol_0_pot, gain_1_pot, vol_1_pot}; // tableau de PIN des potentiomètre
 
 // réglagle de précision de lecture du potentiomètre
-#define bit_read_pot 4 // 4 = 10 bits, 2 = 9 bits, 1 = 8 bits
+#define bit_read_pot 4 // 4 = 8 bits, 2 = 9 bits, 1 = 10 bits
 /*
 Max-val_pot  /  divider relais /  divider_analog
     255      /      1          /      4
@@ -68,7 +68,7 @@ int count_pot_change[4] = {1, 1, 1, 1};          // compteur de changement de va
 int max_pot[4] = {1023, 1022, 1014, 1014}; // valeur max potentiomètre pour calibrage ADC
 int min_pot[4] = {30, 29, 20, 21};         // valeur min potentiomètre pour calibrage ADC
 
-#define CALIBRATED
+// #define CALIBRATED
 
 #ifdef CALIBRATED
 #define value_middle_pot_0 109
@@ -122,7 +122,7 @@ byte relais_gain_val[2] = {0, 0};  // tableau de valeur des relais gain
 byte relais_vol_val[2] = {0, 0};   // tableau de valeur des relais volumes
 byte relais_old[4] = {0, 0, 0, 0}; // tableau de comparaison de valeur des relais
 byte relais_map[4] = {0, 0, 0, 0}; // tableau de mappage des valeur des relais
-#define delay_relais 1             // temps de commutation entre relais
+#define delay_relais 5             // temps de commutation entre relais
 
 // *******************************************************************************************************
 // ****************************************** boutton ****************************************************

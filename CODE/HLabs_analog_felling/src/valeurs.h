@@ -374,7 +374,7 @@ void smoothgain_set(int i) // calcul des valeurs lissées de gain et mise à jou
 
 void smoothvolume_set(int i) // calcul des valeurs lissées de volume et mise à jour des relais
 {
-    smoothvol[i] = map(smoothvol[i], 0, 255, 0, 255); // map de 0 à 255
+    smoothvol[i] = map(smoothvol[i], 0, max_val_pot, 0, 255); // map de 0 à 255
     smoothvol[i] = constrain(smoothvol[i], 0, 255);   // constrain de 0 à 255
     relais_vol_val[i] = smoothvol[i];                 // valeur du relais = valeur du volume
                                                       // mise à jour des relais
