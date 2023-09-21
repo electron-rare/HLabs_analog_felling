@@ -2,32 +2,31 @@
 gestion des valeurs selon position de gain et volume, lissage des valeurs et mise à jour des relais
 *******************************************************************************************************/
 
-
 void valeurs_set(int i);       // gestion des valeurs
 void valeurs_const_set(int i); // gestion des valeurs constant ouptut
 void smoothgain_set(int i);    // calcul des valeurs lissées de gain et mise à jour des relais
 void smoothvolume_set(int i);  // calcul des valeurs lissées de volume et mise à jour des relais
 
-void valeurs_set(int i)
+void valeurs_set(int i) // gestion des valeurs
 {
     if (position_change[i] == true && position_lue[i] != position_save[i]) // si changement d'état du potentiomètre
     {
         switch (i)
         {
         case 0:
-            smoothgain[0] = byte(position_lue[0] / 4); // adaptation de valeur
+            smoothgain[0] = byte(position_lue[0] / divider_relais); // adaptation de valeur
             smoothgain_set(0);                         // mise à jour de valeur du relais gain gauche
             break;
         case 1:
-            smoothvol[0] = byte(position_lue[1] / 4) - 1; // adaptation de valeur
-            smoothvolume_set(0);
+            smoothvol[0] = byte(position_lue[1] / divider_relais) - 1; // adaptation de valeur
+            smoothvolume_set(0);                          // mise à jour de valeur du relais volume gauche
             break;
         case 2:
-            smoothgain[1] = byte(position_lue[2] / 4); // adaptation de valeur
+            smoothgain[1] = byte(position_lue[2] / divider_relais); // adaptation de valeur
             smoothgain_set(1);                         // mise à jour de valeur du relais gain droit
             break;
         case 3:
-            smoothvol[1] = byte(position_lue[3] / 4) - 1; // adaptation de valeur
+            smoothvol[1] = byte(position_lue[3] / divider_relais) - 1; // adaptation de valeur
             smoothvolume_set(1);                          // mise à jour de valeur du relais volume droit
             break;
         default:
@@ -36,26 +35,26 @@ void valeurs_set(int i)
     }
 }
 
-void valeurs_const_set(int i)
+void valeurs_const_set(int i) // gestion des valeurs constant output
 {
     if (position_set[i] != position_save[i]) // si changement d'état du potentiomètre
     {
         switch (i)
         {
         case 0:
-            smoothgain[0] = byte(position_set[0] / 4); // adaptation de valeur
+            smoothgain[0] = byte(position_set[0] / divider_relais); // adaptation de valeur
             smoothgain_set(0);                         // mise à jour de valeur du relais gain gauche
             break;
         case 1:
-            smoothvol[0] = byte(position_set[1] / 4) - 1; // adaptation de valeur
+            smoothvol[0] = byte(position_set[1] / divider_relais) - 1; // adaptation de valeur
             smoothvolume_set(0);                          // mise à jour de valeur du relais volume gauche
             break;
         case 2:
-            smoothgain[1] = byte(position_set[2] / 4); // adaptation de valeur
+            smoothgain[1] = byte(position_set[2] / divider_relais); // adaptation de valeur
             smoothgain_set(1);                         // mise à jour de valeur du relais gain droit
             break;
         case 3:
-            smoothvol[1] = byte(position_set[3] / 4) - 1; // adaptation de valeur
+            smoothvol[1] = byte(position_set[3] / divider_relais) - 1; // adaptation de valeur
             smoothvolume_set(1);                          // mise à jour de valeur du relais volume droit
             break;
         default:
@@ -64,9 +63,8 @@ void valeurs_const_set(int i)
     }
 }
 
-void smoothgain_set(int i)
+void smoothgain_set(int i) // calcul des valeurs lissées de gain et mise à jour des relais
 {
-    // lisages manuel des valeurs de gain
     smoothgain[i] = map(smoothgain[i], 0, 255, 0, 156); // 156sm
     {
         relais_gain_val[i] = smoothgain[i];
@@ -363,27 +361,29 @@ void smoothgain_set(int i)
     {
         relais_gain_val[i] = smoothgain[i] + 99;
     }
+    // mise à jour des relais
     if (i == 0)
     {
-        relais_set(0); // mise à jour des relais
+        relais_set(0); // relais volume gauche
     }
     if (i == 1)
     {
-        relais_set(2); // mise à jour des relais
+        relais_set(2); // relais volume droit
     }
 }
 
-void smoothvolume_set(int i)
+void smoothvolume_set(int i) // calcul des valeurs lissées de volume et mise à jour des relais
 {
     smoothvol[i] = map(smoothvol[i], 0, 255, 0, 255); // map de 0 à 255
-    smoothvol[i] = constrain(smoothvol[i], 0, 255);   // map de 0 à 255
+    smoothvol[i] = constrain(smoothvol[i], 0, 255);   // constrain de 0 à 255
     relais_vol_val[i] = smoothvol[i];                 // valeur du relais = valeur du volume
+                                                      // mise à jour des relais
     if (i == 0)
     {
-        relais_set(1); // mise à jour des relais
+        relais_set(1); // relais gain gauche
     }
     if (i == 1)
     {
-        relais_set(3); // mise à jour des relais
+        relais_set(3); // relais gain droit
     }
 }

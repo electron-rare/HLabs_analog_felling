@@ -22,39 +22,57 @@ void button_position_save() // calcul de la différence entre gain et volume
 {
     if (const_out_L_state == true) // si bouton const_out_L appuyé
     {
+        Serial.println("========== memory position =========");
         for (int i = 0; i <= 1; i++)
         {
             moteur_stop(i);                    // arrêt des moteurs
             lecture_pot(i);                    // lecture des potentiomètres
             position_set[i] = position_lue[i]; // set position potentiomètre gain et volume gauche et droit
             position_memory[i] = position_lue[i];
+            Serial.print("position_memory[");
+            Serial.print(i);
+            Serial.print("] = ");
+            Serial.println(position_memory[i]);
         }
+        Serial.println("===================================");
     }
 
     if (const_out_R_state == true) // si bouton const_out_R appuyé
     {
+        Serial.println("========== memory position =========");
         for (int i = 2; i <= 3; i++)
         {
             moteur_stop(i);                    // arrêt des moteurs
             lecture_pot(i);                    // lecture des potentiomètres
             position_set[i] = position_lue[i]; // set position potentiomètre gain et volume gauche et droit
             position_memory[i] = position_lue[i];
+            Serial.print("position_memory[");
+            Serial.print(i);
+            Serial.print("] = ");
+            Serial.println(position_memory[i]);
         }
+        Serial.println("===================================");
     }
 
     if (stereo_link_state == true) // si bouton stereo_link appuyé
     {
+        Serial.println("========== memory position =========");
         for (int i = 0; i <= 3; i++)
         {
-            moteur_stop(i); // arrêt des moteurs
+            moteur_stop(i);                    // arrêt des moteurs
             lecture_pot(i);                    // lecture des potentiomètres
             position_set[i] = position_lue[i]; // set position potentiomètre gain et volume gauche et droit
             position_memory[i] = position_lue[i];
+            Serial.print("position_memory[");
+            Serial.print(i);
+            Serial.print("] = ");
+            Serial.println(position_memory[i]);
         }
+        Serial.println("===================================");
     }
 }
 
-void lecture_switch()
+void lecture_switch() // lecture des boutons
 {
     // lecture des boutons
     stereo_link.update();
@@ -75,7 +93,7 @@ void lecture_switch()
     }
 }
 
-void bouton_set()
+void bouton_set() // gestion des boutons
 {
     lecture_switch();
     if (stereo_link_state_old != stereo_link_state) // si changement d'état du bouton stereo_link
@@ -112,6 +130,8 @@ void stereo_link_set() // gestion du bouton stereo_link
     else // si bouton stereo_link relaché
     {
         digitalWrite(stereo_link_led, LOW); // éteint LED stereo_link
+        const_out_R_state_old = const_out_R_state;
+        const_out_L_state_old = const_out_L_state;
         // sécurité d'arrêt des moteurs
         for (int i = 0; i <= 3; i++) // pour chaque moteur
         {

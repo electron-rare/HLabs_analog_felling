@@ -11,7 +11,6 @@ c.saillant@gmail.com
 */
 
 #include <Arduino.h>
-#include <EEPROM.h>
 
 // *******************************************************************************************************
 // ******************** pour activer ou non le DEBUG *****************************************************
@@ -56,6 +55,9 @@ void setup()
   debug_init();
 #endif
 
+  Serial.begin(115200);
+  analogReference(EXTERNAL); // utilisation de la référence de tension externe
+
   // set bouton const_out_L
   pinMode(const_out_sw_L, INPUT_PULLUP);
   pinMode(const_out_L_led, OUTPUT);
@@ -75,6 +77,16 @@ void setup()
   stereo_link.interval(interval_button);
   stereo_link.setPressedState(LOW);
 
+  // allumage des leds
+  digitalWrite(stereo_link_led, HIGH);
+  digitalWrite(const_out_L_led, HIGH);
+  digitalWrite(const_out_R_led, HIGH);
+
+  gain_0.enableEdgeSnap();
+  vol_0.enableEdgeSnap();
+  gain_1.enableEdgeSnap();
+  vol_1.enableEdgeSnap();
+
   // set motor stop
   for (int i = 0; i <= 3; i++)
   {
@@ -85,6 +97,9 @@ void setup()
     save_pot(i);    // sauvegarde position potentiomètre
     position_set[i] = position_lue[i];
   }
+#ifdef DEBUG // si DEBUG activé
+  breakpoint();
+#endif
   // calibration des potentiomètres avec bouton stereo_link enfoncé au démarrage
   if (digitalRead(stereo_link_sw) == LOW)
   {
@@ -97,19 +112,21 @@ void setup()
     digitalWrite(stereo_link_led, LOW);
     stereo_link_state = false; // initialisation de l'état du bouton stereo_link en cas de démarrage avec le bouton enfoncé pour la calibration
   }
+#ifdef DEBUG // si DEBUG activé
+  breakpoint();
+#endif
   // lecture des valeurs de calibration enregistrées dans la mémoire EEPROM
   for (int i = 0; i <= 3; i++)
   {
-    max_pot[i] = EEPROM.read(i + 10) * 4;
-    if (max_pot[i] == 0)
-    {
-      max_pot[i] = 1023;
-    }
-    min_pot[i] = (EEPROM.read(i) * 4) + 1;
+    // EEPROM.get(((largeur_addr * nb_addr) + (i * largeur_addr)), max_pot[i]);
+    // EEPROM.get((i * largeur_addr), min_pot[i]);
   }
 #ifdef DEBUG // si DEBUG activé
   breakpoint();
 #endif
+  digitalWrite(const_out_L_led, LOW);
+  digitalWrite(const_out_R_led, LOW);
+  digitalWrite(stereo_link_led, LOW);
   bouton_set(); // lecture et controle des boutons
 }
 
@@ -135,28 +152,36 @@ void loop()
     lecture_pot(i);                 // lecture analogique potentiomètre avec mise à jour du flag de changement de potentiomètre
     if (position_change[i] == true) // si changement de position d'un potentiomètre
     {
-      if (stereo_link_state != true && const_out_L_state != true && const_out_R_state != true) // si pas de contrôle constant output
+      if (stereo_link_state != true && const_out_L_state != true && const_out_R_state != true && millis() >= last_pot_change[i] + 150) // si pas de contrôle constant output
       {
-        valeurs_set(i); // controle des valeurs et des relais en mode normal
+        valeurs_set(i);  // controle des valeurs et des relais en mode normal
+        motor[i].stop(); // stop moteur
+        motor_change[i] = false;
       }
-      // si contrôle constant output ou stereo link avec moteur arrêté il y a plus de bounce_time_pot et mouvement supérieur à ECART_V_STOP
-      else if (motor_change[i] != true && millis() > last_motor_end[i] + bounce_time_pot)
+      // si contrôle constant output ou stereo link avec moteur arrêté depuis plus que bounce_time_pot
+      else if (motor_change[i] != true && millis() > last_motor_end + 500)
       {
-        if (abs(position_lue[i] - position_set[i]) >= ECART_V_STOP)
+        if (abs(position_lue[i] - position_set[i]) > ECART_V_STOP)
         {
+          position_set[i] = position_lue[i];
+          motor[i].brake();
           consigne_set(i); // mise à jour des consignes
           for (int i = 0; i <= 3; i++)
           {
+            // if (motor_change[i] != true)
             valeurs_const_set(i); // controle des valeurs et des relais en mode constant output
           }
         }
-        position_set[i] = position_lue[i];
       }
       save_pot(i); // sauvegarde position potentiomètre
     }
     if (motor_change[i] == true) // si moteur en mouvement
     {
       moteur_set(i); // controle du moteurs
+    }
+    else if (motor_change[i] == false)
+    {
+      motor[i].stop(); // stop moteur
     }
   }
   if (error_state == true)
