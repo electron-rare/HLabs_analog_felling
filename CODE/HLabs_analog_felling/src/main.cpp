@@ -12,11 +12,11 @@ c.saillant@gmail.com
 
 #include <Arduino.h>
 
-// *******************************************************************************************************
-// ******************** pour activer ou non le DEBUG *****************************************************
-// ******************** // #define DEBUG = INACTIF *******************************************************
-// ******************** #define DEBUG = ACTIF ************************************************************
-// *******************************************************************************************************
+/*******************************************************************************************************
+******************** pour activer ou non le DEBUG ******************************************************
+******************** // #define DEBUG = INACTIF ********************************************************
+******************** #define DEBUG = ACTIF *************************************************************
+*******************************************************************************************************/
 
 // #define DEBUG
 
@@ -33,9 +33,9 @@ c.saillant@gmail.com
 #endif
 */
 
-// *******************************************************************************************************
-// ****************************************** include ***************************************************
-// *******************************************************************************************************
+/*******************************************************************************************************
+ ****************************************** include ****************************************************
+ ******************************************************************************************************/
 #include "variables.h"
 #include "pot.h"
 #include "moteur.h"
@@ -45,9 +45,9 @@ c.saillant@gmail.com
 #include "valeurs.h"
 #include "consigne.h"
 
-// *******************************************************************************************************
-// ****************************************** boucle setup ***********************************************
-// *******************************************************************************************************
+/*******************************************************************************************************
+ ****************************************** boucle setup ***********************************************
+ ******************************************************************************************************/
 void setup()
 {
 #ifdef DEBUG // si DEBUG activé
@@ -128,11 +128,12 @@ void setup()
   digitalWrite(const_out_R_led, LOW);
   digitalWrite(stereo_link_led, LOW);
   bouton_set(); // lecture et controle des boutons
+  last_motor_end = millis();
 }
 
-// *******************************************************************************************************
-// ****************************************** boucle principale ******************************************
-// *******************************************************************************************************
+/********************************************************************************************************
+ ****************************************** boucle principale *******************************************
+ *******************************************************************************************************/
 void loop()
 {
   bouton_set();                    // lecture et controle des boutons
@@ -141,34 +142,33 @@ void loop()
     button_position_save();      // enregistrement de position des potentiomètres
     state_button_change = false; // remise à zéro du flag de changement de bouton
   }
-  // *******************************************************************************************************
-  // ********************************* boucle de lecture des potentiomètres ********************************
-  // *******************************************************************************************************
+  /*******************************************************************************************************
+   ********************************* boucle de lecture des potentiomètres ********************************
+   ******************************************************************************************************/
   for (int i = 0; i <= 3; i++)
   {
-    // *******************************************************************************************************
-    // ********************************* boucle de controle des boutons **************************************
-    // *******************************************************************************************************
+    /*******************************************************************************************************
+     ********************************* boucle de controle des boutons **************************************
+     ******************************************************************************************************/
     lecture_pot(i);                 // lecture analogique potentiomètre avec mise à jour du flag de changement de potentiomètre
     if (position_change[i] == true) // si changement de position d'un potentiomètre
     {
-      if (stereo_link_state != true && const_out_L_state != true && const_out_R_state != true && millis() >= last_pot_change[i] + 150) // si pas de contrôle constant output
+      // si pas de contrôle constant output ou stereo link avec potentiomètre plus bougé depuis plus que bounce_time_pot
+      if (stereo_link_state != true && const_out_L_state != true && const_out_R_state != true && millis() >= last_pot_change[i] + bounce_time_pot)
       {
         valeurs_set(i);  // controle des valeurs et des relais en mode normal
         motor[i].stop(); // stop moteur
         motor_change[i] = false;
       }
-      // si contrôle constant output ou stereo link avec moteur arrêté depuis plus que bounce_time_pot
-      else if (motor_change[i] != true && millis() > last_motor_end + 500)
+      // si contrôle constant output ou stereo link avec moteur arrêté et potentiomètre plus bougé depuis plus que bounce_time_pot
+      else if (motor_change[i] != true && millis() > last_motor_end + bounce_time_pot && millis() >= last_pot_change[i] + bounce_time_pot)
       {
         if (abs(position_lue[i] - position_set[i]) > ECART_V_STOP)
         {
-          position_set[i] = position_lue[i];
-          motor[i].brake();
-          consigne_set(i); // mise à jour des consignes
+          position_set[i] = position_lue[i]; // mise à jour de la consigne de position du potentiomètre
+          consigne_set(i);                   // mise à jour des consignes
           for (int i = 0; i <= 3; i++)
           {
-            // if (motor_change[i] != true)
             valeurs_const_set(i); // controle des valeurs et des relais en mode constant output
           }
         }

@@ -11,6 +11,7 @@ void consigne_set(int i);                            // calcul des consignes
 void motor_calc(int pot, int motor) // calcul des consignes de moteurs et du flag de changement de position
 {
     lecture_pot(motor); // lecture des potentiomètres
+    lecture_pot(pot);   // lecture des potentiomètres
     // calcul de la consigne de position des moteurs en min et max
     if (position_set[motor] < min_val_pot)
     {
@@ -126,45 +127,17 @@ void consigne_set(int i) // calcul des consignes de moteurs
         }
     }
 
-    else if (const_out_L_state == true) // si uniquement  const_out_L actif
+    else if (const_out_L_state == true or const_out_R_state == true) // si uniquement const_output actif
     {
-        const int gain_const = 0;
-        const int volume_const = 1;
-        switch (i)
-        {
-        case gain_const:
-            position_const_calc(gain_const, volume_const);
-            break;
-        case volume_const:
-            position_const_calc(volume_const, gain_const);
-            break;
-        default:
-            break;
-        }
-#ifdef DEBUG // si DEBUG activé
-        breakpoint();
-#endif
+        if (i == 0 or i == 2) // si potentiomètre de gain
+            position_const_calc(i, i + 1);
+        else if (i == 1 or i == 3) // si potentiomètre de volume
+            position_const_calc(i + 1, i);
     }
+#ifdef DEBUG // si DEBUG activé
+    breakpoint();
+#endif
 
-    else if (const_out_R_state == true) // si uniquement const_out_L actif
-    {
-        const int gain_const = 2;
-        const int volume_const = 3;
-        switch (i)
-        {
-        case gain_const:
-            position_const_calc(gain_const, volume_const);
-            break;
-        case volume_const:
-            position_const_calc(volume_const, gain_const);
-            break;
-        default:
-            break;
-        }
-#ifdef DEBUG // si DEBUG activé
-        breakpoint();
-#endif
-    }
     /*
     Serial.print("position_set[");
     Serial.print(i);

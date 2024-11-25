@@ -1,6 +1,6 @@
-/*******************************************************************************************************
+/*************************************************************************************************************
 gestion des valeurs des relais avec incrément et décrément et de l'envoie des valeurs sur les cartes relais
-*******************************************************************************************************/
+**************************************************************************************************************/
 
 #include "PCF8574.h" // https://github.com/RobTillaart/PCF8574/blob/master/examples/PCF8574_test1/PCF8574_test1.ino
 
@@ -82,8 +82,6 @@ void relais_set(int relais)
 
 void relais_send(int relais, int value, int byte_value)
 {
-    // PCF.write(const uint8_t pin, const uint8_t value) writes a single pin; pin = 0..7; value is HIGH(1) or LOW (0)
-    // uint8_t write(const uint8_t value) writes all pins; value = 0..255
     // envoie I2C des valeur sur les cartes relais
     switch (relais)
     {

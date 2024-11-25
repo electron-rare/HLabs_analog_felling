@@ -1,10 +1,11 @@
 /*******************************************************************************************************
-gestion de la vitesse et du sens de déplacement des moteur
+******************   gestion de la vitesse et du sens de déplacement des moteur   **********************
 *******************************************************************************************************/
 
 #include <SparkFunMiniMoto.h> // Include the MiniMoto library
 /*
-Attempts to set speed lower than 6 will be ignored; speeds higher than 63 will be truncated to 63. The sign of the value determines the direction of the motion.
+Attempts to set speed lower than 6 will be ignored; speeds higher than 63 will be truncated to 63.
+The sign of the value determines the direction of the motion.
 */
 
 MiniMoto motor[4] = {gain_0_motor, vol_0_motor, gain_1_motor, vol_1_motor}; // Create  MiniMoto instances, pour controle des moteur en I2C (DRV8830)
@@ -90,10 +91,11 @@ void moteur_set(int i) // fonction de gestion de vitesse et position moteurs ave
                 moteur_stop(i);      // stop moteur
                 return;
         }
-        // *******************************************************************************************************
-        else if (position_lue[i] > position_set[i]) // si moteur doit aller vers la gauche
+        /*******************************************************************************************************
+                                        si moteur doit aller vers la gauche
+         *******************************************************************************************************/
+        else if (position_lue[i] > position_set[i])
         {
-                // myPID.configure(Kp, Ki, Kd, Hz, output_bits, output_signed); // configuration PID
                 switch (i) // configuration PID en fonction du moteur (i)
                 {
                 case 0:
@@ -101,18 +103,17 @@ void moteur_set(int i) // fonction de gestion de vitesse et position moteurs ave
                         break;
                 case 1:
                         myPID_1.setOutputRange(-PID_speed_max, -PID_speed_min); // plage de sortie du PID
-
                         break;
                 case 2:
                         myPID_2.setOutputRange(-PID_speed_max, -PID_speed_min); // plage de sortie du PID
-
                         break;
                 case 3:
                         myPID_3.setOutputRange(-PID_speed_max, -PID_speed_min); // plage de sortie du PID
                         break;
                 }
-                error_state = false;                                  // remise à zéro du flag d'erreur
-                if (position_set[i] <= min_val_pot + ECART_V_MIN_MAX) // si consigne de position du potentiomètre = min
+                error_state = false; // remise à zéro du flag d'erreur
+                // si consigne de position du potentiomètre = min
+                if (position_set[i] <= min_val_pot + ECART_V_MIN_MAX)
                 {
                         motor_speed[i] = -63;
                         switch (i) // mise à zéro du PID en fonction du moteur (i)
@@ -125,7 +126,6 @@ void moteur_set(int i) // fonction de gestion de vitesse et position moteurs ave
                                 break;
                         case 2:
                                 myPID_2.clear(); // remise à zéro du PID
-
                                 break;
                         case 3:
                                 myPID_3.clear(); // remise à zéro du PID
@@ -159,10 +159,11 @@ void moteur_set(int i) // fonction de gestion de vitesse et position moteurs ave
                 }
                 motor[i].drive(motor_speed[i]); // controle moteur
         }
-        // *******************************************************************************************************
-        else if (position_lue[i] < position_set[i]) // si moteur doit aller vers la droite
+        /*******************************************************************************************************
+                                             si moteur doit aller vers la droite
+        ********************************************************************************************************/
+        else if (position_lue[i] < position_set[i])
         {
-                // myPID.configure(Kp, Ki, Kd, Hz, output_bits, output_signed); // configuration PID
                 switch (i)
                 {
                 case 0:
@@ -181,8 +182,8 @@ void moteur_set(int i) // fonction de gestion de vitesse et position moteurs ave
                         break;
                 }
                 error_state = false; // remise à zéro du flag d'erreur
-
-                if (position_set[i] >= max_val_pot - ECART_V_MIN_MAX) // si consigne de position du potentiomètre = max
+                // si consigne de position du potentiomètre = max
+                if (position_set[i] >= max_val_pot - ECART_V_MIN_MAX)
                 {
                         motor_speed[i] = 63;
                         switch (i)
